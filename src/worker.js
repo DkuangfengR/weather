@@ -23,11 +23,16 @@ async function fetchImage(env, imgPath) {
 
 export default {
 	async fetch(request, env, ctx) {
-		const url = `https://api.seniverse.com/v3/weather/daily.json?key=${env.SK}&location=${request.cf.city}&language=zh-Hans&unit=c&start=0&days=3`;
+		const defaultUrl = `https://api.seniverse.com/v3/weather/daily.json?key=${env.SK}&location=beijing&language=zh-Hans&unit=c&start=0&days=3`;
+		const url = `https://api.seniverse.com/v3/weather/daily.json?key=${env.SK}&location=${request.cf.latitude}:${request.cf.longitude}&language=zh-Hans&unit=c&start=0&days=3`;
 		let data;
 		try {
 			const response = await fetch(url);
 			data = await response.json();
+			if(!data.results[0]) {
+				const response = await fetch(defaultUrl);
+				data = await response.json();
+			}
 		} catch (error) {
 			console.error('Error fetching weather data:', error);
 			return new Response('Error fetching weather data', { status: 500 });
